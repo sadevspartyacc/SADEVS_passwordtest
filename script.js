@@ -11,17 +11,23 @@ passwordInput.addEventListener('input', () => {
     if (/[0-9]/.test(val)) charsetSize += 10;
     if (/[^A-Za-z0-9]/.test(val)) charsetSize += 32;
 
-    // Используем BigInt для огромных чисел
-    const combinations = BigInt(charsetSize) ** BigInt(val.length);
-    const hashesPerSecond = BigInt(10000000000); // 10 billion/sec
-    let seconds = combinations / hashesPerSecond;
+    let combinations = BigInt(charsetSize) ** BigInt(val.length);
+    
+    let hashesPerSecond;
+    if (val.length <= 10) {
+        hashesPerSecond = BigInt(10000000000); 
+    } else {
+        hashesPerSecond = BigInt(1000000); 
+    }
 
-    if (seconds === 0n) {
-        display.innerText = "Crack time: Instant (less than a second)";
+    let totalSeconds = combinations / hashesPerSecond;
+
+    if (val.length < 5) {
+        display.innerText = "Crack time: Instant";
         return;
     }
 
-    // Рассчитываем компоненты времени
+    let seconds = totalSeconds;
     const years = seconds / 31536000n;
     seconds %= 31536000n;
     const days = seconds / 86400n;
@@ -31,14 +37,12 @@ passwordInput.addEventListener('input', () => {
     const mins = seconds / 60n;
     const secs = seconds % 60n;
 
-    // Собираем строку (только ненулевые значения)
     let result = [];
     if (years > 0n) result.push(`${years}y`);
     if (days > 0n) result.push(`${days}d`);
     if (hours > 0n) result.push(`${hours}h`);
     if (mins > 0n) result.push(`${mins}m`);
-    if (secs > 0n) result.push(`${secs}s`);
+    if (secs > 0n || result.length === 0) result.push(`${secs}s`);
 
-    display.innerText = "Crack time: " + (result.join(' ') || "Instant");
+    display.innerText = "Crack time: " + result.join(' ');
 });
-
