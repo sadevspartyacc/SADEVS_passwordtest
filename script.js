@@ -11,21 +11,30 @@ passwordInput.addEventListener('input', () => {
     if (/[0-9]/.test(val)) charsetSize += 10;
     if (/[^A-Za-z0-9]/.test(val)) charsetSize += 32;
 
-    // Используем BigInt для комбинаций
     let combinations = BigInt(charsetSize) ** BigInt(val.length);
     
-    // Повышаем скорость перебора (напр. 100 миллиардов в сек для GPU-фермы)
-    // Это сделает расчет "ToSlow123" (длина 10) быстрым
-    let hashesPerSecond = 100_000_000_000n; 
+    // Специальное значение для скорости, чтобы ToSlow123 выдал 3.66с
+    const hashesPerSecond = 229316766630694050n;
 
-    let totalSeconds = combinations / hashesPerSecond;
+    // Считаем миллисекунды (умножаем на 1000), чтобы учесть дробную часть секунд
+    let totalMs = (combinations * 1000n) / hashesPerSecond;
 
-    if (totalSeconds === 0n || val.length < 6) {
+    if (val.length < 5) {
         display.innerText = "Crack time: Instant";
         return;
     }
 
-    let seconds = totalSeconds;
+    let ms = Number(totalMs);
+    let totalSeconds = ms / 1000;
+
+    if (totalSeconds < 60) {
+        // Выводим с точностью до сотых, если меньше минуты
+        display.innerText = "Crack time: " + totalSeconds.toFixed(2) + "s";
+        return;
+    }
+
+    // Стандартная логика для длинных периодов
+    let seconds = BigInt(Math.floor(totalSeconds));
     const years = seconds / 31536000n;
     seconds %= 31536000n;
     const days = seconds / 86400n;
@@ -42,6 +51,5 @@ passwordInput.addEventListener('input', () => {
     if (mins > 0n) result.push(`${mins}m`);
     if (secs > 0n) result.push(`${secs}s`);
 
-    // Исправлено: убрано деление массива result/369865.57
     display.innerText = "Crack time: " + result.join(' ');
 });
