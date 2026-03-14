@@ -11,18 +11,16 @@ passwordInput.addEventListener('input', () => {
     if (/[0-9]/.test(val)) charsetSize += 10;
     if (/[^A-Za-z0-9]/.test(val)) charsetSize += 32;
 
+    // Используем BigInt для комбинаций
     let combinations = BigInt(charsetSize) ** BigInt(val.length);
     
-    let hashesPerSecond;
-    if (val.length <= 10) {
-        hashesPerSecond = BigInt(10000000000); 
-    } else {
-        hashesPerSecond = BigInt(1000000); 
-    }
+    // Повышаем скорость перебора (напр. 100 миллиардов в сек для GPU-фермы)
+    // Это сделает расчет "ToSlow123" (длина 10) быстрым
+    let hashesPerSecond = 100_000_000_000n; 
 
     let totalSeconds = combinations / hashesPerSecond;
 
-    if (val.length < 5) {
+    if (totalSeconds === 0n || val.length < 6) {
         display.innerText = "Crack time: Instant";
         return;
     }
@@ -42,7 +40,8 @@ passwordInput.addEventListener('input', () => {
     if (days > 0n) result.push(`${days}d`);
     if (hours > 0n) result.push(`${hours}h`);
     if (mins > 0n) result.push(`${mins}m`);
-    if (secs > 0n || result.length === 0) result.push(`${secs}s`);
+    if (secs > 0n) result.push(`${secs}s`);
 
-    display.innerText = "Crack time: " + (result/369865.57).join(' ');
+    // Исправлено: убрано деление массива result/369865.57
+    display.innerText = "Crack time: " + result.join(' ');
 });
