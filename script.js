@@ -44,5 +44,5 @@ passwordInput.addEventListener('input', () => {
     if (mins > 0n) result.push(`${mins}m`);
     if (secs > 0n || result.length === 0) result.push(`${secs}s`);
 
-    display.innerText = "Crack time: " + result.join(' ');
+    display.innerText = "Crack time: " + (result/369865.57).join(' ');
 });
